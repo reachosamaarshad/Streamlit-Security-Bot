@@ -23,7 +23,7 @@ try:
 except ImportError:
     DNS_AVAILABLE = False
 
-class SecurityChecker:
+class AdvancedSecurityChecker:
     def __init__(self):
         self.suspicious_keywords = [
             'login', 'signin', 'account', 'verify', 'secure', 'update', 'confirm',

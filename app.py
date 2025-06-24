@@ -1,7 +1,7 @@
 import streamlit as st
 import time
 from datetime import datetime
-from checker import SecurityChecker
+from advanced_checker import AdvancedSecurityChecker
 import re
 
 # Page configuration
@@ -105,7 +105,7 @@ if 'messages' not in st.session_state:
 # Initialize security checker
 @st.cache_resource
 def get_security_checker():
-    return SecurityChecker()
+    return AdvancedSecurityChecker()
 
 security_checker = get_security_checker()
 
@@ -131,9 +131,17 @@ def is_valid_url(url):
 
 def extract_url_from_text(text):
     """Extract URL from text that might contain other words"""
-    # URL pattern that matches URLs within text
+    # More comprehensive URL pattern that handles various URL formats
+    # This pattern matches URLs with protocols, domains, paths, and query parameters
     url_pattern = re.compile(
-        r'https?://[^\s<>"{}|\\^`\[\]]+', re.IGNORECASE)
+        r'https?://'  # http:// or https://
+        r'(?:[-\w.])+(?:[:\d]+)?'  # domain and optional port
+        r'(?:/(?:[\w/_.~!*\'();:@&=+$,%#-]|%[0-9a-fA-F]{2})*)*'  # path and query parameters
+        r'(?:\?(?:[\w/_.~!*\'();:@&=+$,%#-]|%[0-9a-fA-F]{2})*)?'  # query string
+        r'(?:#(?:[\w/_.~!*\'();:@&=+$,%#-]|%[0-9a-fA-F]{2})*)?',  # fragment
+        re.IGNORECASE
+    )
+    
     urls = url_pattern.findall(text)
     return urls[0] if urls else None
 
@@ -142,7 +150,7 @@ def is_analysis_request(text):
     analysis_keywords = [
         'analyze', 'analysis', 'check', 'scan', 'security', 'secure', 'safe',
         'test', 'examine', 'inspect', 'review', 'audit', 'verify', 'validate',
-        'assess', 'evaluate', 'investigate', 'look into', 'check out'
+        'assess', 'evaluate', 'investigate', 'look into', 'check out', 'please'
     ]
     
     text_lower = text.lower()
@@ -155,6 +163,17 @@ def is_analysis_request(text):
     
     # Check for direct URL input (just a URL)
     is_direct_url = is_valid_url(text.strip())
+    
+    # Also check for URLs without protocol (add https:// if needed)
+    if not has_url and not is_direct_url:
+        # Look for domain-like patterns
+        domain_pattern = re.compile(
+            r'\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}\b'
+        )
+        potential_domains = domain_pattern.findall(text)
+        if potential_domains:
+            # If we find a domain and analysis keywords, treat as analysis request
+            return has_analysis_keywords
     
     return has_url or has_analysis_keywords or is_direct_url
 
@@ -301,7 +320,19 @@ def get_chatbot_response(user_input):
     
     # Check if it's an analysis request
     if is_analysis_request(user_input):
+        # First try to extract URL with protocol
         url = extract_url_from_text(user_input)
+        
+        # If no URL found, try to extract domain and add protocol
+        if not url:
+            domain_pattern = re.compile(
+                r'\b(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}\b'
+            )
+            domains = domain_pattern.findall(user_input)
+            if domains:
+                # Take the first domain found and add https://
+                url = f"https://{domains[0]}"
+        
         if not url:
             # If no URL found but analysis keywords present, ask for URL
             return "I'd be happy to analyze a website for you! 🔍 Please provide the URL you'd like me to check for security issues."
@@ -403,14 +434,19 @@ if send_button and user_input:
 with st.sidebar:
     st.markdown("### ℹ️ About Me")
     st.markdown("""
-    I'm your website security assistant! 🔒
+    I'm your advanced website security assistant! 🔒
     
-    I can help you analyze websites for:
+    I can analyze websites for:
     • HTTPS/SSL certificate validity
-    • Domain age and registration
-    • Suspicious patterns
-    • IP resolution checks
-    • Security headers
+    • Advanced TLS/SSL analysis
+    • Malware & phishing detection
+    • Port security & vulnerability scanning
+    • DNS security & configuration
+    • Email security (SPF, DKIM, DMARC)
+    • Web application security
+    • Domain age & registration
+    • Network security analysis
+    • Content security assessment
     
     Just ask me to analyze any website URL!
     """)
@@ -422,8 +458,27 @@ with st.sidebar:
     **Analysis:** Ask me to analyze any website:
     • "Analyze https://example.com"
     • "Check the security of google.com"
+    • "Can you please analyze this https://yaytext.com/bold-italic/"
+    • "Now analyze this https://osama.shareresume.online/"
     • "Is facebook.com secure?"
     • "Scan this website: amazon.com"
+    • "Please check yaytext.com"
+    • "Security analysis for github.com"
+    """)
+    
+    st.markdown("### 🔍 Advanced Features")
+    st.markdown("""
+    **Smart URL Detection:**
+    • Works with full URLs (https://example.com)
+    • Works with domains only (example.com)
+    • Handles URLs with paths and parameters
+    • Natural language processing
+    
+    **Comprehensive Analysis:**
+    • 10+ security categories
+    • Real-time scoring (0-100)
+    • Detailed recommendations
+    • Threat detection
     """)
     
     # Clear chat button
