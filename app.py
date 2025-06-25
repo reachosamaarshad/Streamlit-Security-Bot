@@ -15,52 +15,65 @@ st.set_page_config(
 # Custom CSS for chat-like interface
 st.markdown("""
 <style>
+    /* Dark mode compatible chat interface */
     .chat-message {
         padding: 1rem;
         border-radius: 0.5rem;
         margin-bottom: 1rem;
         display: flex;
         flex-direction: column;
+        color: var(--text-color);
     }
     .user-message {
-        background-color: #e3f2fd;
+        background-color: rgba(33, 150, 243, 0.1);
         border-left: 4px solid #2196f3;
+        color: var(--text-color);
     }
     .bot-message {
-        background-color: #f3e5f5;
+        background-color: rgba(156, 39, 176, 0.1);
         border-left: 4px solid #9c27b0;
+        color: var(--text-color);
     }
     .security-issue {
-        background-color: #ffebee;
+        background-color: rgba(244, 67, 54, 0.1);
         border-left: 4px solid #f44336;
         padding: 0.5rem;
         margin: 0.25rem 0;
         border-radius: 0.25rem;
+        color: var(--text-color);
     }
     .security-pass {
-        background-color: #e8f5e8;
+        background-color: rgba(76, 175, 80, 0.1);
         border-left: 4px solid #4caf50;
         padding: 0.5rem;
         margin: 0.25rem 0;
         border-radius: 0.25rem;
+        color: var(--text-color);
     }
     .security-warning {
-        background-color: #fff3e0;
+        background-color: rgba(255, 152, 0, 0.1);
         border-left: 4px solid #ff9800;
         padding: 0.5rem;
         margin: 0.25rem 0;
         border-radius: 0.25rem;
+        color: var(--text-color);
     }
+    
+    /* Dark mode compatible text input */
     .stTextInput > div > div > input {
         border-radius: 25px;
-        border: 2px solid #e0e0e0;
+        border: 2px solid var(--border-color);
         padding: 12px 20px;
         font-size: 16px;
+        background-color: var(--background-color);
+        color: var(--text-color);
     }
     .stTextInput > div > div > input:focus {
         border-color: #2196f3;
         box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
     }
+    
+    /* Dark mode compatible button */
     .stButton > button {
         border-radius: 25px;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -85,6 +98,7 @@ st.markdown("""
         transform: translateY(0);
         box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
     }
+    
     /* Fix alignment between text input and button */
     .row-widget.stHorizontal {
         align-items: end;
@@ -94,6 +108,124 @@ st.markdown("""
     }
     .stButton {
         margin-bottom: 0;
+    }
+    
+    /* Dark mode compatible status cards */
+    .status-card {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        color: var(--text-color);
+    }
+    
+    /* Dark mode compatible security result cards */
+    .security-result-card {
+        background-color: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 0.25rem;
+        padding: 0.5rem;
+        margin: 0.25rem 0;
+        color: var(--text-color);
+    }
+    
+    /* Ensure proper text contrast in dark mode */
+    .chat-message strong {
+        color: var(--text-color);
+    }
+    
+    .chat-message small {
+        color: var(--text-color);
+        opacity: 0.7;
+    }
+    
+    /* Dark mode compatible dividers */
+    .divider {
+        border-top: 1px solid var(--border-color);
+        margin: 1rem 0;
+    }
+    
+    /* Dark mode compatible header */
+    .header-text {
+        color: var(--text-color);
+    }
+    
+    .header-subtitle {
+        color: var(--text-color);
+        opacity: 0.8;
+    }
+    
+    /* Dark mode compatible footer */
+    .footer-text {
+        color: var(--text-color);
+        opacity: 0.7;
+    }
+    
+    /* Dark mode compatible sidebar */
+    .sidebar-content {
+        color: var(--text-color);
+    }
+    
+    /* Ensure proper contrast for all text elements */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-color);
+    }
+    
+    p {
+        color: var(--text-color);
+    }
+    
+    /* Dark mode compatible list items */
+    ul, ol {
+        color: var(--text-color);
+    }
+    
+    li {
+        color: var(--text-color);
+    }
+    
+    /* Streamlit dark mode specific overrides */
+    [data-testid="stSidebar"] {
+        background-color: var(--background-color);
+    }
+    
+    [data-testid="stSidebar"] .sidebar-content {
+        color: var(--text-color);
+    }
+    
+    /* Ensure proper contrast for Streamlit elements */
+    .stMarkdown {
+        color: var(--text-color);
+    }
+    
+    .stMarkdown p {
+        color: var(--text-color);
+    }
+    
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+    .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: var(--text-color);
+    }
+    
+    /* Fix for Streamlit's default styling conflicts */
+    .main .block-container {
+        color: var(--text-color);
+    }
+    
+    /* Ensure proper visibility of all text in both themes */
+    .stMarkdown, .stMarkdown * {
+        color: inherit;
+    }
+    
+    /* Override any hardcoded colors that might interfere */
+    .stMarkdown [style*="color: #666"] {
+        color: var(--text-color) !important;
+        opacity: 0.7;
+    }
+    
+    .stMarkdown [style*="color: #"] {
+        color: var(--text-color) !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -112,8 +244,8 @@ security_checker = get_security_checker()
 # Header
 st.markdown("""
 <div style="text-align: center; padding: 2rem 0;">
-    <h1>🔒 SecureLink Chatbot</h1>
-    <p style="font-size: 1.2rem; color: #666;">Hi! I'm your website security assistant. Ask me to analyze any website! 🔍</p>
+    <h1 class="header-text">🔒 SecureLink Chatbot</h1>
+    <p class="header-subtitle" style="font-size: 1.2rem;">Hi! I'm your website security assistant. Ask me to analyze any website! 🔍</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -202,7 +334,7 @@ def format_security_results(results):
         
         # Display overall score
         st.markdown(f"""
-        <div style="background-color: #f8f9fa; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; border-left: 4px solid {status_color};">
+        <div class="status-card" style="border-left: 4px solid {status_color};">
             <h5>{status_emoji} Overall Security Score: {score}/100 ({status_text})</h5>
         </div>
         """, unsafe_allow_html=True)
@@ -220,19 +352,19 @@ def format_security_results(results):
                     
                     if status == 'pass':
                         st.markdown(f"""
-                        <div style="background-color: #e8f5e8; border-left: 4px solid #4caf50; padding: 0.5rem; margin: 0.25rem 0; border-radius: 0.25rem;">
+                        <div class="security-result-card" style="border-left: 4px solid #4caf50;">
                             ✅ {message}
                         </div>
                         """, unsafe_allow_html=True)
                     elif status == 'warning':
                         st.markdown(f"""
-                        <div style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 0.5rem; margin: 0.25rem 0; border-radius: 0.25rem;">
+                        <div class="security-result-card" style="border-left: 4px solid #ff9800;">
                             ⚠️ {message}
                         </div>
                         """, unsafe_allow_html=True)
                     else:
                         st.markdown(f"""
-                        <div style="background-color: #ffebee; border-left: 4px solid #f44336; padding: 0.5rem; margin: 0.25rem 0; border-radius: 0.25rem;">
+                        <div class="security-result-card" style="border-left: 4px solid #f44336;">
                             ❌ {message}
                         </div>
                         """, unsafe_allow_html=True)
@@ -432,8 +564,17 @@ if send_button and user_input:
 
 # Sidebar with additional info
 with st.sidebar:
+    st.markdown("### 🎨 Theme")
+    st.markdown("""
+    <div class="sidebar-content">
+    The app automatically adapts to your browser's theme preference. 
+    If you're having visibility issues, try switching your browser's theme.
+    </div>
+    """, unsafe_allow_html=True)
+    
     st.markdown("### ℹ️ About Me")
     st.markdown("""
+    <div class="sidebar-content">
     I'm your advanced website security assistant! 🔒
     
     I can analyze websites for:
@@ -449,10 +590,12 @@ with st.sidebar:
     • Content security assessment
     
     Just ask me to analyze any website URL!
-    """)
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("### 💬 How to Use")
     st.markdown("""
+    <div class="sidebar-content">
     **Greetings:** Say hello, hi, how are you, etc.
     
     **Analysis:** Ask me to analyze any website:
@@ -464,10 +607,12 @@ with st.sidebar:
     • "Scan this website: amazon.com"
     • "Please check yaytext.com"
     • "Security analysis for github.com"
-    """)
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("### 🔍 Advanced Features")
     st.markdown("""
+    <div class="sidebar-content">
     **Smart URL Detection:**
     • Works with full URLs (https://example.com)
     • Works with domains only (example.com)
@@ -479,7 +624,8 @@ with st.sidebar:
     • Real-time scoring (0-100)
     • Detailed recommendations
     • Threat detection
-    """)
+    </div>
+    """, unsafe_allow_html=True)
     
     # Clear chat button
     if st.button("🗑️ Clear Chat"):
@@ -489,7 +635,7 @@ with st.sidebar:
 # Footer
 st.markdown("---")
 st.markdown("""
-<div style="text-align: center; color: #666; padding: 1rem;">
-    <p>🔒 SecureLink Chatbot - Your friendly security assistant</p>
+<div style="text-align: center; padding: 1rem;">
+    <p class="footer-text">🔒 SecureLink Chatbot - Your friendly security assistant</p>
 </div>
 """, unsafe_allow_html=True) 
